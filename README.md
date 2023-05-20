@@ -1,4 +1,4 @@
-# CSV/VCF Conversion Tool 🔧
+# CSV/VCF Conversion Tool 🛠️
 
 This program is a simple **CSV/VCF conversion tool** implemented using **Python** and **Tkinter** (only built-in modules). It allows you to convert files between CSV (Comma-Separated Values) and VCF (vCard) formats.
 
@@ -10,7 +10,7 @@ This program is a simple **CSV/VCF conversion tool** implemented using **Python*
 - Handles naming conflicts when saving the output file by appending a counter to the filename.
 - Enables logging of conversion operations if desired.
 
-## How to Use 
+## How to Use 💭
 
 **1.** Select the input file by clicking the "Browse" button next to the "Input File" field. (You can choose either a CSV file or a VCF file.)
 
@@ -29,7 +29,7 @@ This program is a simple **CSV/VCF conversion tool** implemented using **Python*
 
 <sup>(If an error occurs during the conversion, an error message box will be displayed with the details of the error.)</sup>
 
-## Issues/Fixes 
+## Issues/Fixes ⚙️
 
 ***Actually none, please report it if you found one.***
 
