@@ -111,19 +111,21 @@ def convert_vcf_to_csv(vcf_file, csv_file, encoding):
     with open(vcf_file, 'r', encoding=encoding) as file:
         vcard_list = []
         vcard = {}
+        fieldnames = set()
 
         for line in file:
             if line.startswith("BEGIN:VCARD"):
                 vcard = {}
             elif line.startswith("END:VCARD"):
                 vcard_list.append(vcard)
-            else:
+                fieldnames.update(vcard.keys())
+            elif ":" in line:
                 key, value = line.strip().split(":", 1)
                 vcard[key] = value
 
     if vcard_list:
         with open(csv_file, 'w', newline='', encoding=encoding) as file:
-            writer = csv.DictWriter(file, fieldnames=vcard_list[0].keys())
+            writer = csv.DictWriter(file, fieldnames=sorted(fieldnames))
             writer.writeheader()
             writer.writerows(vcard_list)
 
