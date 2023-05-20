@@ -3,7 +3,8 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 import logging
 import os
-
+import threading
+from tkinter import ttk
 
 # Constants
 ENCODINGS = ['utf-8', 'latin-1', 'utf-16', 'utf-32', 'utf-8-sig', 'utf-16-le', 'utf-16-be',
@@ -57,6 +58,18 @@ def convert_file():
     input_extension = input_file.split(".")[-1]
     output_format = "vcf" if input_extension.lower() == "csv" else "csv"
 
+    # Create a progress bar
+    progress_bar = ttk.Progressbar(root, orient="horizontal", length=200, mode="indeterminate")
+    progress_bar.grid(row=3, column=0, columnspan=4, padx=6, pady=10)
+    progress_bar.start()
+
+    # Create a separate thread for conversion
+    conversion_thread = threading.Thread(target=perform_conversion, args=(input_file, output_destination, output_format, progress_bar))
+    conversion_thread.start()
+
+
+# Function to perform the file conversion
+def perform_conversion(input_file, output_destination, output_format, progress_bar):
     try:
         encoding = detect_encoding(input_file)
         if output_format == "csv":
@@ -72,6 +85,10 @@ def convert_file():
     except Exception as e:
         logging.error(f"Conversion Error: {str(e)}")
         messagebox.showerror("Error", str(e))
+
+    # Stop the progress bar
+    progress_bar.stop()
+    progress_bar.grid_forget()
 
 
 # Function to generate the output file path and handle naming conflicts
