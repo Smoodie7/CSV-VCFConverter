@@ -8,9 +8,7 @@ This program is a simple **CSV/VCF conversion tool** implemented using **Python*
 - Provides a user-friendly graphical interface for easy file selection and conversion.
 - MultiThreading support.
 - Progress Bar. *(Usefull for large files)*
-- Detects the encoding of the input file automatically or prompts the user to specify the encoding if it cannot be detected.
-- Handles naming conflicts when saving the output file by appending a counter to the filename.
-- Enables logging of conversion operations if desired.
+- Detects the encoding of the input file automatically. *(prompts the user to specify the encoding if it cannot be detected)*
 
 ## How to Use 💭
 
