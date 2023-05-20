@@ -24,7 +24,8 @@ This program is a simple **CSV/VCF conversion tool** implemented using **Python*
 
 *(If an error occurs during the conversion, an error message box will be displayed with the details of the error.)*
 
-Feel free to customize and enhance this program to fit your specific requirements!
+
+**Feel free to customize and enhance this program to fit your specific requirements!**
 
 *Note: The program provides a predefined list of common encodings, but if the encoding of the input file cannot be automatically detected, it will prompt you to enter the encoding manually.*
 
