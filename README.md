@@ -10,6 +10,17 @@ This program is a simple **CSV/VCF conversion tool** implemented using **Python*
 - Progress Bar. *(Usefull for large files)*
 - Detects the encoding of the input file automatically. *(prompts the user to specify the encoding if it cannot be detected)*
 
+## Installation 📦
+
+With **git**:
+```
+git clone https://github.com/Smoodie7/CSV-VCFConverter
+```
+Directly from **github**:
+```
+Code > Download ZIP
+```
+
 ## How to Use 💭
 
 **1.** Select the input file by clicking the "Browse" button next to the "Input File" field. (You can choose either a CSV file or a VCF file.)
@@ -31,7 +42,9 @@ This program is a simple **CSV/VCF conversion tool** implemented using **Python*
 
 ## Issues/Fixes ⚙️
 
-***Actually none, please report it if you found one.***
+- .vcf To .csv can have some imperfections.
+
+***please report if you found one.***
 
 ## License 📜
 
