@@ -1,0 +1,76 @@
+CSV/VCF Conversion Tool - Code Explanation:
+
+This is a detailed explanation of the code for the CSV/VCF Conversion Tool. The code is written in Python and provides a graphical 
+user interface (GUI) for converting CSV files to VCF format and vice versa.
+
+The code starts by importing the necessary libraries:
+
+csv: Provides functionality for reading and writing CSV files.
+tkinter: Used for creating the GUI and handling user interactions.
+filedialog: A submodule of tkinter that provides file and directory dialog functionalities.
+messagebox: A submodule of tkinter used to display error and information messages.
+logging: Used for logging conversion activities and errors.
+os: Provides functions for interacting with the operating system.
+threading: Used to perform the file conversion process in a separate thread.
+ttk: A submodule of tkinter that provides themed widget classes.
+Constants
+The code defines a list of encodings (ENCODINGS) that are used to detect the encoding of the input file. These encodings are 
+commonly used for text files.
+
+"Browse" Functions
+The code defines two functions: browse_input_file() and browse_output_destination(). These functions are responsible for opening
+file and folder dialogs to browse and select the input file and output destination folder, respectively. They use the filedialog 
+module from tkinter to achieve this.
+
+"Convert" Functions
+The code defines several functions related to the conversion process:
+
+convert_file(): This is the main function called when the "Convert" button is clicked. It retrieves the input file path and 
+output destination from the GUI fields, validates them, and starts the conversion process in a separate thread.
+perform_conversion(): This function is executed in a separate thread. It performs the actual file conversion based on 
+the selected input file, output destination, and format. It also handles exceptions, updates the progress bar, and displays 
+completion or error messages.
+get_output_file_path(): This function generates the output file path by appending a counter to the filename if a file with the 
+same name already exists in the output destination folder.
+convert_vcf_to_csv(): This function converts a VCF file to a CSV file. It reads the VCF file, extracts the data, and writes it
+to a CSV file using the csv module.
+convert_csv_to_vcf(): This function converts a CSV file to a VCF file. It reads the CSV file, extracts the data, and writes it
+to a VCF file.
+detect_encoding(): This function detects the encoding of a file by trying different encodings from the ENCODINGS list. If the 
+encoding is not detected, it prompts the user to enter the encoding manually.
+GUI
+The code sets up the graphical user interface (GUI) using tkinter. It creates a window (root) and adds various GUI elements such 
+as labels, text entry fields, buttons, and checkboxes.
+
+input_file_label, input_file_entry, and input_file_browse_btn are used to handle the input file selection.
+output_destination_label, output_destination_entry, and output_destination_browse_btn are used to handle the output destination 
+folder selection.
+log_checkbox is a checkbox that allows the user to enable or disable logging.
+convert_btn is the button that triggers the conversion process.
+The grid() function is used to position the GUI elements within the window.
+Running the Application
+The code calls the mainloop() function to start the GUI event loop, which listens for user interactions and responds accordingly.
+
+When the user clicks the "Convert" button, the convert_file() function is called, initiating the conversion process. The conversion 
+process is executed in a separate thread using the threading module to prevent blocking the GUI.
+
+Logging
+If the user checks the "Enable Logs" checkbox, the code enables logging using the logging module. Log messages are written to a file 
+named "logs.txt" in the same directory as the script.
+
+Error Handling
+The code includes error handling to catch and display any exceptions that occur during the conversion process. If an error occurs, 
+an error message box is displayed using the messagebox module.
+
+Limitations
+The code has certain limitations:
+
+It assumes that the CSV file has a header row containing column names.
+It expects the CSV file to be well-formed with proper delimiters and formatting.
+It expects the VCF file to be well-formed with valid VCF format syntax.
+Make sure to validate the input files and ensure they conform to the expected formats to avoid any issues during conversion.
+
+That's a high-level explanation of the CSV/VCF Conversion Tool code. Feel free to dive into the code and make any modifications 
+or enhancements as needed.
+
+LICENSE: MIT License
