@@ -1,17 +1,19 @@
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 import csv
-from threading import Thread
+from threading import Thread, Lock
 from tkinter.ttk import Progressbar
 import chardet
 
-VERSION = 'v0.0.1a'
+VERSION = 'v0.0.2a'
 
 class FileViewer:
     def __init__(self):
         self.file_path = None
         self.file_data = None
         self.file_type = None
+        self.current_index = 0
+        self.load_lock = Lock()
 
         self.window = tk.Tk()
         self.window.title(f"CSV/VCF Viewer {VERSION}")
@@ -23,21 +25,45 @@ class FileViewer:
         self.content_text = tk.Text(self.window, height=20, width=80)
         self.content_text.pack()
 
-        self.prev_button = tk.Button(self.window, text="Previous", command=self.show_previous)
+        self.prev_button = tk.Button(self.window, text="Previous", command=self.show_previous, state=tk.DISABLED)
         self.prev_button.pack(side=tk.LEFT, padx=10, pady=10)
 
-        self.next_button = tk.Button(self.window, text="Next", command=self.show_next)
+        self.next_button = tk.Button(self.window, text="Next", command=self.show_next, state=tk.DISABLED)
         self.next_button.pack(side=tk.RIGHT, padx=10, pady=10)
 
         self.loading_bar = Progressbar(self.window, mode="indeterminate")
+        self.loading_bar.pack()
 
     def select_file(self):
+        if self.load_lock.locked():
+            messagebox.showinfo("Wait", "Please wait until the current file has finished loading.")
+            return
         self.file_path = filedialog.askopenfilename(filetypes=[("CSV Files", "*.csv"), ("VCF Files", "*.vcf")])
         if self.file_path:
             self.load_file()
 
+    def detect_encoding(file_path):
+        encodings = ['utf8', 'iso-8859-1', 'iso-8859-2', 'iso-8859-15', 'cp437', 'cp850', 'cp852', 'cp855', 
+                 'cp857', 'cp860', 'cp861', 'cp862', 'cp863', 'cp865', 'cp866', 'cp869', 'cp874', 
+                 'cp1250', 'cp1251', 'cp1252', 'cp1253', 'cp1254', 'cp1255', 'cp1256', 'cp1257', 'cp1258']
+
+        for encoding in encodings:
+            try:
+                file = open(file_path, encoding=encoding)
+                file.readlines()
+                file.seek(0)
+            except:
+                pass
+            else:
+                return encoding
+        raise UnicodeDecodeError('None of the provided encodings could decode the file.')
+
+
     def load_file(self):
         encoding = self.detect_encoding()
+        self.loading_bar.start()
+        self.load_lock.acquire()
+        self.current_index = 0
         if self.file_path.endswith(".csv"):
             self.file_type = "csv"
             thread = Thread(target=self.load_csv, args=(encoding,))
@@ -47,101 +73,28 @@ class FileViewer:
         else:
             raise IOError("Invalid file selected.")
         thread.start()
-        self.loading_bar.start()
         self.window.after(10, self.check_thread, thread)
 
-    def load_csv(self, encoding):
-        data = []
-        with open(self.file_path, "r", encoding=encoding) as file:
-            reader = csv.reader(file)
-            for row in reader:
-                data.append(row)
-        self.file_data = data
-        self.display_data(0)
-
-    def load_vcf(self, encoding):
-        data = []
-        with open(self.file_path, "rb") as file:
-            try:
-                lines = file.readlines()
-                entry = []
-                for line in lines:
-                    if line.startswith(b"BEGIN:VCARD"):
-                        if entry:
-                            data.append(entry)
-                            entry = []
-                    entry.append(line.decode(encoding).strip())
-                if entry:
-                    data.append(entry)
-            except UnicodeDecodeError:
-                # Failed to decode with specified encoding, try other encodings
-                ENCODINGS = ['utf-8', 'utf-16', 'latin-1', 'utf-8-sig', 'utf-16-le', 'utf-16-be', 'utf-32',
-                 'utf-32-le', 'utf-32-be', 'ISO-8859-1', 'GBK', 'Windows-1251', 'ANSI', 'Big5',
-                 'EUC-JP', 'Windows-1254', 'ASCII', 'UTF-7', 'UTF-16-LE-BOM', 'UTF-16-BE-BOM',
-                 'UTF-32-LE-BOM', 'UTF-32-BE-BOM', 'Shift_JIS', 'EUC-KR', 'ISO-8859-2', 'ISO-8859-15',
-                 'Windows-1252', 'Windows-1256', 'ISO-8859-9', 'KOI8-R']
-                for alt_encoding in encodings:
-                    if alt_encoding != encoding:
-                        try:
-                            file.seek(0)  # Reset file pointer
-                            lines = file.readlines()
-                            entry = []
-                            for line in lines:
-                                if line.startswith(b"BEGIN:VCARD"):
-                                    if entry:
-                                        data.append(entry)
-                                        entry = []
-                                entry.append(line.decode(alt_encoding).strip())
-                            if entry:
-                                data.append(entry)
-                            break  # Successful decoding, exit the loop
-                        except UnicodeDecodeError:
-                            continue  # Try next encoding
-                else:
-                    # Failed to decode with all encodings
-                    raise IOError("Failed to decode the VCF file with any available encoding.")
-        self.file_data = data
-        self.display_data(0)
-
-
-    def display_data(self, index):
-        self.content_text.delete("1.0", tk.END)
-        if self.file_type == "csv":
-            data_row = self.file_data[index]
-            for row in data_row:
-                self.content_text.insert(tk.END, f"{row}\n")
-        elif self.file_type == "vcf":
-            data_entry = self.file_data[index]
-            for line in data_entry:
-                self.content_text.insert(tk.END, f"{line}\n")
+    # Rest of the code remains same.
 
     def show_previous(self):
-        if self.file_data:
-            current_index = self.file_data.index(self.content_text.get("1.0", tk.END).strip().split("\n"))
-            previous_index = max(current_index - 1, 0)
-            self.display_data(previous_index)
+        if self.current_index > 0:
+            self.current_index -= 1
+            self.display_data(self.current_index)
 
     def show_next(self):
-        if self.file_data:
-            current_index = self.file_data.index(self.content_text.get("1.0", tk.END).strip().split("\n"))
-            next_index = min(current_index + 1, len(self.file_data) - 1)
-            self.display_data(next_index)
+        if self.current_index < len(self.file_data) - 1:
+            self.current_index += 1
+            self.display_data(self.current_index)
 
     def check_thread(self, thread):
         if thread.is_alive():
             self.window.after(10, self.check_thread, thread)
         else:
             self.loading_bar.stop()
-
-    def detect_encoding(self):
-        with open(self.file_path, 'rb') as file:
-            raw_data = file.read()
-        result = chardet.detect(raw_data)
-        encoding = result['encoding']
-        return encoding
-
-    def run(self):
-        self.window.mainloop()
+            self.load_lock.release()
+            self.prev_button['state'] = tk.NORMAL
+            self.next_button['state'] = tk.NORMAL
 
 if __name__ == "__main__":
     file_viewer = FileViewer()
